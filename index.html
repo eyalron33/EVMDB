@@ -1,0 +1,130 @@
+<!doctype>
+<html>
+<head>
+<script type='text/javascript'>
+
+function create() {
+	var name = document.getElementById('create_table').value;
+	var header1 = document.getElementById('create_header1').value;
+	var header2 = document.getElementById('create_header2').value;
+	var res = contracts['BCDB'].contract.create(name, [header1, header2]);
+}
+	
+function insert() {
+	var name = document.getElementById('insert_table').value;
+	var field1 = document.getElementById('insert_field1').value;
+	var field2 = document.getElementById('insert_field2').value;
+	var res = contracts['BCDB'].contract.insert(name, [field1, field2]);
+}
+	
+function update() {
+	var name = document.getElementById('update_table').value;
+	var row = document.getElementById('update_row').value;
+	var field1 = document.getElementById('update_field1').value;
+	var field2 = document.getElementById('update_field2').value;
+	var res = contracts['BCDB'].contract.update(name, row, [field1, field2]);
+}
+	
+function erase() {
+	var name = document.getElementById('erase_table').value;
+	var row = document.getElementById('erase_row').value;
+	var res = contracts['BCDB'].contract.erase(name, row);
+}
+
+function search() {
+	var name = document.getElementById('search_table').value;
+	var value = document.getElementById('search_value').value;
+	var res = contracts['BCDB'].contract.search(name, value);
+	res = web3.toDecimal(res);
+	if (res == -1) {
+		document.getElementById('search_res').innerText = "not found";
+	} else {
+		var row_res = contracts['BCDB'].contract.get_data(name, res);
+		row_res[0] = web3.toAscii(row_res[0]);
+		row_res[1] = web3.toAscii(row_res[1]);
+		document.getElementById('search_res').innerText = row_res[0] + ", " + row_res[1];	}
+}
+	
+function get_keys() {	var table_id = document.getElementById('table_id_key').value;
+					    var row_id = document.getElementById('row_id_key').value;
+						var res = contracts['BCDB'].contract.get_keys(table_id,row_id);
+					   	//res = web3.toAscii(res);
+				   	   	document.getElementById('queryres').innerText = res;}
+
+function show_header() {var table_id = document.getElementById('table_id_header').value;
+					    var row_id = document.getElementById('row_id_header').value;
+						var res = contracts['BCDB'].contract.get_header(table_id,row_id);
+					   	res = web3.toAscii(res);
+				   	   	document.getElementById('queryres').innerText = res;}
+
+function get_data_from_table() {var table_id = document.getElementById('table_id_data').value;
+								var row_id = document.getElementById('row_id').value;
+								//var column_id = document.getElementById('column_id').value;
+								var res = contracts['BCDB'].contract.get_data(table_id, row_id);
+								res[0] = web3.toAscii(res[0]);
+								res[1] = web3.toAscii(res[1]);
+				   				document.getElementById('queryres').innerText = res[0] + "," + res[1];}
+	
+function show_table() {
+	var table_id = document.getElementById('show_table_id').value;
+	var table_size = contracts['BCDB'].contract.get_table_size(table_id);
+	var i,j;
+	var row;
+	var table_html = "<table> ";
+	for (i=0; i<table_size; i++) {
+		table_html = table_html + "<tr>";
+		row = contracts['BCDB'].contract.get_data(table_id, i);
+		for (j=0; j<row.length; j++) {
+			table_html = table_html + "<td>" + web3.toAscii(row[j]) + "</td>";
+		}
+		table_html = table_html + "<tr>";
+	}
+	table_html = table_html + "</table>";
+	document.getElementById('table').innerHTML = table_html;
+}
+	
+var createEvent = contracts['BCDB'].contract.tableCreated(function(error, result) {
+    if (!error) {
+        document.getElementById('queryres').innerText = document.getElementById('queryres').innerText + " " + JSON.stringify(result.args.index);
+	} else {
+		document.getElementById('queryres').innerText = "error";
+	}
+});
+
+	
+</script>
+</head>
+<body bgcolor='#E6E6FA'>
+	<h3>BCDB Operations</h3>
+<div>
+	<button onclick='create()'>Create</button> 
+	<input type='string' id='create_table' placeholder="name" maxlength="8" size="8"> 
+	<input type='string' id='create_header1' placeholder="header 1" maxlength="8" size="8"> 
+	<input type='string' id='create_header2' placeholder="header2" size="12">  <br>
+	
+	<button onclick='insert()'>Insert</button> 
+	<input type='string' id='insert_table' value = "0" maxlength="4" size="4"> 
+	<input type='string' id='insert_field1' placeholder="field 1" size="12"> 
+	<input type='string' id='insert_field2' placeholder="field 2" size="12"><br>
+	
+	<button onclick='update()'>Update</button> <input type='string' id='update_table' value = "0" maxlength="4" size="4">
+	Row: <input type='string' id='update_row' value = "0" maxlength="4" size="4">
+	<input type='string' id='update_field1' placeholder="field 1" size="12"> 
+	<input type='string' id='update_field2' placeholder="field 2" size="12"><br>
+	
+	<button onclick='erase()'>Erase</button> <input type='string' id='erase_table' value = "0" maxlength="4" size="4">
+	Row: <input type='string' id='erase_row' value = "0" maxlength="4" size="4"> <br>
+	
+	<button onclick='search()'>search</button> <input type='string' id='search_table' value = "0" maxlength="4" size="4">
+	<input type='string' id='search_value' placeholder="value" size="12"> <br>
+
+<div id='queryres'></div>	
+<div id='search_res'></div>	
+
+<h2> Show Table </h2>
+Table: <input type='number' id='show_table_id' value = "0"> <button onclick='show_table()'> Show </button>
+<div id='table'>
+
+</div>
+</body>
+</html>
