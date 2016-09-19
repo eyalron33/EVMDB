@@ -1,0 +1,241 @@
+!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<title>BCDB Form</title>
+	<link rel="stylesheet" href="style.css">
+	<script src="js/bignumber.min.js"></script>
+	<script src="js/web3-light.js"></script>
+
+	<script>
+		var Web3 = require('web3');
+		var web3 = new Web3();
+		web3.setProvider(new web3.providers.HttpProvider("http://localhost:8545"));
+
+		// let's assume that coinbase is our account
+		web3.eth.defaultAccount = web3.eth.coinbase;
+	</script>
+
+	<script src="deployment.js"></script>
+	<script type='text/javascript'>
+		function create() {
+			var name = document.getElementById('create_table').value;
+			var header1 = document.getElementById('create_header1').value;
+			var header2 = document.getElementById('create_header2').value;
+			var res = contracts['BCDB'].contract.create(name, [header1, header2]);
+		}
+
+		function insert() {
+			var name = document.getElementById('insert_table').value;
+			var field1 = document.getElementById('insert_field1').value;
+			var field2 = document.getElementById('insert_field2').value;
+			var res = contracts['BCDB'].contract.insert(name, [field1, field2]);
+		}
+
+		function update() {
+			var name = document.getElementById('update_table').value;
+			var row = document.getElementById('update_row').value;
+			var field1 = document.getElementById('update_field1').value;
+			var field2 = document.getElementById('update_field2').value;
+			var res = contracts['BCDB'].contract.update(name, row, [field1, field2]);
+		}
+
+		function erase() {
+			var name = document.getElementById('erase_table').value;
+			var row = document.getElementById('erase_row').value;
+			var res = contracts['BCDB'].contract.erase(name, row);
+		}
+
+		function search() {
+			var name = document.getElementById('search_table').value;
+			var value = document.getElementById('search_value').value;
+			var res = contracts['BCDB'].contract.search(name, value);
+			res = web3.toDecimal(res);
+			if (res == -1) {
+				document.getElementById('search_res').innerText = "not found";
+			} else {
+				var row_res = contracts['BCDB'].contract.get_data(name, res);
+				row_res[0] = web3.toAscii(row_res[0]);
+				row_res[1] = web3.toAscii(row_res[1]);
+				document.getElementById('search_res').innerText = row_res[0] + ", " + row_res[1];
+			}
+		}
+
+		function get_keys() {
+			var table_id = document.getElementById('table_id_key').value;
+			var row_id = document.getElementById('row_id_key').value;
+			var res = contracts['BCDB'].contract.get_keys(table_id, row_id);
+			//res = web3.toAscii(res);
+			document.getElementById('queryres').innerText = res;
+		}
+
+		function show_header() {
+			var table_id = document.getElementById('table_id_header').value;
+			var row_id = document.getElementById('row_id_header').value;
+			var res = contracts['BCDB'].contract.get_header(table_id, row_id);
+			res = web3.toAscii(res);
+			document.getElementById('queryres').innerText = res;
+		}
+
+		function get_data_from_table() {
+			var table_id = document.getElementById('table_id_data').value;
+			var row_id = document.getElementById('row_id').value;
+			//var column_id = document.getElementById('column_id').value;
+			var res = contracts['BCDB'].contract.get_data(table_id, row_id);
+			res[0] = web3.toAscii(res[0]);
+			res[1] = web3.toAscii(res[1]);
+			document.getElementById('queryres').innerText = res[0] + "," + res[1];
+		}
+
+		function show_table() {
+			var table_id = document.getElementById('show_table_id').value;
+			var table_size = contracts['BCDB'].contract.get_table_size(table_id);
+			var i, j;
+			var row;
+			var table_html = "<table> ";
+			for (i = 0; i < table_size; i++) {
+				table_html = table_html + "<tr>";
+				row = contracts['BCDB'].contract.get_data(table_id, i);
+				for (j = 0; j < row.length; j++) {
+					table_html = table_html + "<td>" + web3.toAscii(row[j]) + "</td>";
+				}
+				table_html = table_html + "<tr>";
+			}
+			table_html = table_html + "</table>";
+			document.getElementById('table').innerHTML = table_html;
+		}
+
+		var createEvent = contracts['BCDB'].contract.tableCreated(function (error, result) {
+			if (!error) {
+				document.getElementById('queryres').innerText = document.getElementById('queryres').innerText + " " + JSON.stringify(result.args.index);
+			} else {
+				document.getElementById('queryres').innerText = "error";
+			}
+		});
+	</script>
+</head>
+
+<body>
+
+	<div class="container_wide">
+	<div class="container">
+		<form id="the_form" action="" method="post">
+			<h3>Create Table</h3>
+			<fieldset>
+				<input type='text' id='create_table' placeholder="Table Name" maxlength="8" size="8" tabindex="1">
+			</fieldset>
+			<fieldset>
+				<input type='text' id='create_header1' placeholder="Header1" size="10" tabindex="2">
+				<input type='text' id='create_header2' placeholder="Header2" size="10" tabindex="3">
+			</fieldset>
+			<fieldset>
+				<button name="submit" type="submit" data-submit="...Creating" onclick='create()'>Create</button>
+			</fieldset>
+		</form>
+	</div>
+
+	<div class="container">
+		<form id="the_form" action="" method="post">
+			<h4>Insert</h4>
+			<fieldset>
+				<label>TableID:</label>
+				<input type='text' id='insert_table' placeholder="TableID" value="0" maxlength="4" size="4">
+			</fieldset>
+			<fieldset>
+				<input type='text' id='insert_field1' placeholder="Field 1" size="10">
+				<input type='text' id='insert_field2' placeholder="Field 2" size="10">
+			</fieldset>
+			<fieldset>
+				<button name="submit" type="submit" data-submit="...Inserting" onclick='insert()'>Insert</button>
+			</fieldset>
+		</form>
+	</div>
+	<div class="container">
+		<form id="the_form" action="" method="post">
+			<h4>Update</h4>
+			<fieldset>
+				<label>TableID:</label>
+				<input type='text' id='update_table' value="0" maxlength="4" size="4">
+				<label>Row:</label>
+				<input type='text' id='update_row' value="0" maxlength="4" size="4">
+			</fieldset>
+			<fieldset>
+				<input type='text' id='update_field1' placeholder="field 1" size="10">
+				<input type='text' id='update_field2' placeholder="field 2" size="10">
+			</fieldset>
+			<fieldset>
+				<button name="submit" type="submit" data-submit="...Updating" onclick='update()'>Update</button>
+			</fieldset>
+		</form>
+	</div>
+	<div class="container">
+		<form id="the_form" action="" method="post">
+			<h4>Search</h4>
+			<fieldset>
+				<label>TableID:</label>
+				<input type='text' id='search_table' value="0" maxlength="4" size="4">
+				<input type='text' id='search_value' placeholder="Search for" value="" size="12">
+			</fieldset>
+			<fieldset>
+				<button name="submit" type="submit" data-submit="...Searching" onclick='erase()'>Search</button>
+			</fieldset>
+			<fieldset>
+				<div id='search_res'>result here</div>
+			</fieldset>
+		</form>
+	</div>
+	<div class="container">
+		<form id="the_form" action="" method="post">
+			<h4>Erase</h4>
+			<fieldset>
+				<label>TableID:</label>
+				<input type='text' id='erase_table' value="0" maxlength="4" size="4">
+				<label>Row:</label>
+				<input type='text' id='erase_row' value="0" maxlength="4" size="4">
+			</fieldset>
+			<fieldset>
+				<button name="submit" type="submit" data-submit="...Erasing" onclick='erase()'>Erase</button>
+			</fieldset>
+		</form>
+	</div>
+	</div>
+
+	<div class="container_wide">
+	<div class="container">
+		<form id="the_form" action="" method="post">
+			<h3>Table List</h3>
+			<fieldset>
+				<textarea id='table_list' rows="10" cols="20" disabled></textarea>
+			</fieldset>
+		</form>
+	</div>
+	<div class="container">
+		<form id="the_form" action="" method="post">
+			<h3>Table View</h3>
+			<fieldset>
+				<label>TableID:</label>
+				<input type='text' id='show_table_id' value="0" maxlength="4" size="4">
+				<button name="submit" type="submit" data-submit="...Showing" onclick='show_table()'>Show Table</button>
+			</fieldset>
+			<fieldset>
+			</fieldset>
+		</form>
+	</div>
+	<div id='table'>output
+		<table>
+			<tr>
+				<th>Header 1</th>
+				<th>Header 2</th>
+			</tr>
+			<tr>
+				<td>Data 1</td>
+				<td>Data 2</td>
+			</tr>
+		</table>
+	</div>
+	</div>
+
+</body>
+
+</html>
