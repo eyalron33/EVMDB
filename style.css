@@ -88,6 +88,11 @@ select {
 	padding: 5px;
 }
 
+select,
+option {
+	height: 2em;
+}
+
 input[type="text"]:hover,
 textarea:hover,
 select:hover {
