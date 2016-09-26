@@ -1,259 +1,342 @@
-/* A simple Block Chain Database (BCDB)
+// TODO: Example with getting DB id from event
 
-The SC provides a simple interface for creating 
-and managing databases on the EVM.
-
-The SC provides insert, update, delete and search functions.
-The search is only exact search for the moment.
-
-There are many things to be added, including type checking, 
-regular expression search etc.
-
+/* A simple Ethereum Virtual Machine Database (EVMDB)
+//
+// Used for creating/managing DBs on the EVM.
+//
+// Provides insert, update, delete and search functions.
+// The search is only exact search at the moment.
+//
+// Further developments may include type checking, "select" search,
+// complicated DB structues etc.
+//
+// See https://github.com/eyalron33/EVMDB/ for documentation
+//
+// License:  MIT 
 */
 
-//using int256 in binary search to return '-1' for not found,
-//this causes max index to be uint128, however use we uint256 
-//elsewhere since its the type of array index, and
-//we want to avoid type casting.
-contract BCDB {
-    int256 constant NOT_FOUND 	= -1;
+pragma solidity ^0.4.2;
 
-    struct Table {
+contract EVMDB {
+    int256 constant NOT_FOUND   = -1;
+
+    struct DB {
         address     owner;
         bytes32     name;
         bytes32[]   header;
-        bytes32[][]   data; // Dynamic array whose elements are arrays of two bytes
-        uint256[] primary_key; // Assume 'primary key' is the first column
+        bytes32[][] data; // Dynamic array whose elements are arrays of two bytes
+        uint256[]   primary_key; // Assume 'primary key' is the first column
     }
     
+    DB[] DBs;
     address god;
-    Table[] tables;
     
-    function BCDB() {
+    function EVMDB() {
         god = msg.sender;
     }
-	
-	/* Events and Modifiers */
-	event tableCreated(bytes32 name, uint256 index);
-	modifier onlyGod { if (msg.sender != god) throw; _ }
-	
     
-    /*                              *
-     * External intercace functions *
-     *                              */       
-    function create(bytes32 name, bytes32[] headers) external returns (uint256) {
-		uint256 table_id = tables.length;
-		uint256 i;
-		
-		//array extension is manual
-		tables.length = table_id + 1;
-		tables[table_id].header.length = headers.length;
-		
-		
-       	for (i=0; i<headers.length; i++) {
-       	    tables[table_id].header[i] = headers[i]; 
-       	}
+    /* Events and Modifiers */
+    event DBCreated(bytes32 name, uint256 index);
+    modifier onlyGod { if (msg.sender != god) throw; _ ;}
+    
+    
+    /////////////////////////////////////////////////
+    /// ... DB manipulation functions ...
+    /////////////////////////////////////////////////
+     
+    /// creates a new DB, and emits an event with the DB id.
+    /// Primary key is *always* taken to be the first column.
+    ///
+    /// @param _name       name of the DB
+    /// @param _headers    array (of any size) of DB header names
+    ///
+    /// @return            id of newly created DB
+    function create(bytes32 _name, bytes32[] _headers) external returns (uint256) {
+        uint256 DB_id = DBs.length;
+        uint256 i;
         
-        tables[table_id].name = name;
-        tables[table_id].owner = msg.sender;
-		
-		tableCreated(name, table_id);
-        return table_id;
+        //array extension is manual
+        DBs.length = DB_id + 1;
+        DBs[DB_id].header.length = _headers.length;
+        
+        
+        for (i=0; i<_headers.length; i++) {
+            DBs[DB_id].header[i] = _headers[i]; 
+        }
+        
+        DBs[DB_id].name = _name;
+        DBs[DB_id].owner = msg.sender;
+        
+        DBCreated(_name, DB_id);
+        return DB_id;
     }
     
-    function insert(uint256 table_id, bytes32[] data) external returns (uint256) {
-        if (table_id < tables.length && 
-            msg.sender == tables[table_id].owner &&
-            data.length == tables[table_id].header.length) {
-			
-			uint256 row_id = tables[table_id].data.length;
-			uint256 i;
-			
-			//array extension is manual
-			tables[table_id].data.length = row_id + 1;
-			tables[table_id].data[row_id].length = data.length;
+    /// inserts data to a new row in the DB
+    ///
+    /// @param _DB_id   id of the DB
+    /// @param _data    data to insert
+    ///
+    /// @return         id of newly created row
+    function insert(uint256 _DB_id, bytes32[] _data) external returns (uint256) {
+        if (_DB_id < DBs.length && 
+            msg.sender == DBs[_DB_id].owner &&
+            _data.length == DBs[_DB_id].header.length) {
+            
+            uint256 row_id = DBs[_DB_id].data.length;
+            uint256 i;
+            
+            //array extension is manual
+            DBs[_DB_id].data.length = row_id + 1;
+            DBs[_DB_id].data[row_id].length = _data.length;
         
-            for (i=0; i<data.length; i++) {    
-                tables[table_id].data[row_id][i] = data[i];
+            for (i=0; i<_data.length; i++) {    
+                DBs[_DB_id].data[row_id][i] = _data[i];
             }
-			
-			//push to primary_key table
-			uint256 place = place_to_push(table_id, data[0]);
-			push_key(table_id, place, row_id);
-			
-			return row_id;
+            
+            //push to primary_key table
+            uint256 place = place_to_push(_DB_id, _data[0]);
+            push_key(_DB_id, place, row_id);
+            
+            return row_id;
+        } else {
+            log1(bytes32(_DB_id),"invalid parameters");
+            throw;
         }
     }
-
-    function erase(uint256 table_id, uint256 row) external {
-        if (table_id < tables.length && 
-            msg.sender == tables[table_id].owner && 
-            row < tables[table_id].data.length) {
+    
+    /// deletes a row from a DB
+    ///
+    /// @param _DB_id   id of the DB
+    /// @param _row    number of row to delete
+    function erase(uint256 _DB_id, uint256 _row) external {
+        if (_DB_id < DBs.length && 
+            msg.sender == DBs[_DB_id].owner && 
+            _row < DBs[_DB_id].data.length) {
                 
-			//delete key
-			int256 place = binary_search(table_id, tables[table_id].data[row][0]);
-			delete_key(table_id, uint256(place));
-			
-			//delete from DB
-			uint256 i;
-			for (i=0; i<tables[table_id].data[row].length; i++) {
-            	delete tables[table_id].data[row][i];
-			}
-			
+            //delete key
+            int256 place = binary_search(_DB_id, DBs[_DB_id].data[_row][0]);
+            delete_key(_DB_id, uint256(place));
+            
+            //delete from DB
+            uint256 i;
+            for (i=0; i<DBs[_DB_id].data[_row].length; i++) {
+                delete DBs[_DB_id].data[_row][i];
+            }
+            
         } else {
-			throw; //log NOTHING TO DELETE
-		}
+            log1(bytes32(_DB_id),"invalid parameters");
+            throw;
+        }
     }
     
-    function update(uint256 table_id, uint256 row, bytes32[] data) external { //TODO: row_id --> row everywhere
-        if (table_id < tables.length && 
-            msg.sender == tables[table_id].owner && 
-            row < tables[table_id].data.length &&
-            data.length == tables[table_id].header.length) {
+    /// updates a row in a DB
+    ///
+    /// @param _DB_id   id of the DB
+    /// @param _row     number of row to update
+    /// @param _data    new data
+    function update(uint256 _DB_id, uint256 _row, bytes32[] _data) external { //TODO: row_id --> row everywhere
+        if (_DB_id < DBs.length && 
+            msg.sender == DBs[_DB_id].owner && 
+            _row < DBs[_DB_id].data.length &&
+            _data.length == DBs[_DB_id].header.length) {
 
             uint256 i;
 
             //delete key
-			int256 place = binary_search(table_id, tables[table_id].data[row][0]);
-			delete_key(table_id, uint256(place));
-			
-			//update value
-			for (i=0; i<data.length; i++) {    
-                tables[table_id].data[row][i] = data[i];
+            int256 place = binary_search(_DB_id, DBs[_DB_id].data[_row][0]);
+            delete_key(_DB_id, uint256(place));
+            
+            //update value
+            for (i=0; i<_data.length; i++) {    
+                DBs[_DB_id].data[_row][i] = _data[i];
             }
-			
-			//update key
-			place = int256(place_to_push(table_id, data[0]));
-			push_key(table_id, uint256(place), row);
+            
+            //update key
+            place = int256(place_to_push(_DB_id, _data[0]));
+            push_key(_DB_id, uint256(place), _row);
         } else {
-			throw; //log error
-		}
+            log1(bytes32(_DB_id),"invalid parameters");
+            throw;
+        }
     }
     
-    function search(uint256 table_id, bytes32 value) external constant returns (int256) {
-		int256 place = binary_search(table_id, value);
-		if (place > -1) {
-			return int256(tables[table_id].primary_key[uint256(place)]);
-		} else {
-			return place;
-		}
+    /// search a DB via primary key (which is assumed to be the first column)
+    ///
+    /// @param _DB_id   id of the DB
+    /// @param _value     value to search
+    function search(uint256 _DB_id, bytes32 _value) external constant returns (int256) {
+        if (_DB_id < DBs.length) {
+            int256 place = binary_search(_DB_id, _value);
+            if (place > -1) {
+                return int256(DBs[_DB_id].primary_key[uint256(place)]);
+            } else {
+                return place;
+            }
+        } else {
+            log1(bytes32(_DB_id),"table_id does not exist");
+            throw;
+        }
     }
     
-    /*                      *
-     * internal functions   *
-     *                      */    
-    function binary_search(uint256 table_id, bytes32 data) returns (int256) {
+    /////////////////////////////////////////////////
+    /// ... Query DB functions ...
+    ///////////////////////////////////////////////// 
+    
+    /// Queries for header names
+    ///
+    /// @param _DB_id   id of the DB
+    ///
+    /// @return    array of header name
+    function get_header(uint256 _DB_id) constant external returns (bytes32[]) {
+        if (_DB_id < DBs.length) {
+            return DBs[_DB_id].header;
+        } else {
+            bytes32[] memory temp;
+            temp[0] = "invalid parameters";
+            return (temp);
+        }
+    }
+    
+    /// Queries for data by row number
+    ///
+    /// @param _DB_id   id of the DB
+    /// @param _row     row number
+    ///
+    /// @return         array consisting of row's items
+    function get_row(uint256 _DB_id, uint256 _row) constant external returns (bytes32[]) {
+        if (_DB_id < DBs.length &&
+            _row < DBs[_DB_id].data.length) {
+            return (DBs[_DB_id].data[_row]);
+        } else {
+            bytes32[] memory temp;
+            temp[0] = "invalid parameters";
+            return (temp);
+        }
+    }
+    
+    /// Queries for an item by row and column numbers
+    ///
+    /// @param _DB_id   id of the DB
+    /// @param _row     row number
+    /// @param _col     column number
+    ///
+    /// @return         item
+    function get_row_col(uint256 _DB_id, uint256 _row, uint256 _col) constant external returns (bytes32) {
+        if (_DB_id < DBs.length &&
+            _row < DBs[_DB_id].data.length &&
+            _col < DBs[_DB_id].header.length) {
+            return (DBs[_DB_id].data[_row][_col]);
+        } else {
+            return ("invalid parameters");
+        }
+    }
+    
+    /// Returns DB info: [owner, name, size], where size is #rows
+    ///
+    /// @param _DB_id   id of the DB
+    ///
+    /// @return    size of the DB
+    function get_DB_info(uint256 _DB_id) constant external returns (address, bytes32, int256) {
+        if (_DB_id < DBs.length) {
+            return (DBs[_DB_id].owner, DBs[_DB_id].name, int256(DBs[_DB_id].data.length));
+        }
+        else {
+            return (0x0000000000000000000000000000000000000000,"DB_id not existing",-1); // error
+        }
+    }
+    
+    /// Queries for the number of DBs in the smart contract
+    ///
+    /// @return    number of DBs
+    function get_number_of_DBs() constant external returns (uint256) {
+        return DBs.length;
+    }
+    
+    /////////////////////////////////////////////////
+    /// ... Internal Functions ...
+    /////////////////////////////////////////////////
+
+    // returns index of an element in a linked list or NOT_FOUND if not found    
+    function binary_search(uint256 DB_id, bytes32 data) internal returns (int256) {
         uint256 m=0; // search index
         
-		//Using int256 as L may be -1,
-		//this means that greatest searched index is 2^128-1,
-		int256 L = 0; 
-		int256 R = int256(tables[table_id].primary_key.length)-1;        
+        //Using int256 as L may be -1,
+        //this means that greatest searched index is 2^128-1,
+        int256 L = 0; 
+        int256 R = int256(DBs[DB_id].primary_key.length)-1;        
 
-		while (L <= R) {
-			m = uint256((L+R)/2);
-			if (tables[table_id].data[tables[table_id].primary_key[m]][0] < data) {
-				L = int256(m)+1;
-			} else if (tables[table_id].data[tables[table_id].primary_key[m]][0] > data) {
-				R = int256(m)-1;
-			} else {
-			   return int256(m);
-			}
-		}
-		
+        while (L <= R) {
+            m = uint256((L+R)/2);
+            if (DBs[DB_id].data[DBs[DB_id].primary_key[m]][0] < data) {
+                L = int256(m)+1;
+            } else if (DBs[DB_id].data[DBs[DB_id].primary_key[m]][0] > data) {
+                R = int256(m)-1;
+            } else {
+               return int256(m);
+            }
+        }
         return NOT_FOUND;
     }
-	
-	//returns a place to enter new element (not merely searching, like binary_search)
-	function place_to_push(uint256 table_id, bytes32 data) returns (uint256) {
+    
+    // returns a index to enter a new element (unlike searching, who returns a location of an existing element)
+    function place_to_push(uint256 DB_id, bytes32 data) internal returns (uint256) {
         uint256 m=0; // search index
         
-		//Using int256 as L may be -1,
-		//this means that greatest searched index is 2^128-1,
-		int256 L = 0; 
-		int256 R = int256(tables[table_id].primary_key.length)-1;        
+        //Using int256 as L may be -1,
+        //this means that greatest searched index is 2^128-1,
+        int256 L = 0; 
+        int256 R = int256(DBs[DB_id].primary_key.length)-1;        
 
-		while (L <= R) {
-			m = uint256((L+R)/2);
-			if (tables[table_id].data[tables[table_id].primary_key[m]][0] < data) {
-				L = int256(m)+1;
-			} else if (tables[table_id].data[tables[table_id].primary_key[m]][0] > data) {	
-				R = int256(m)-1;
-			} else {
-			   return m;
-			}
-		}
-		
-		if ( (tables[table_id].primary_key.length>0) && (tables[table_id].data[tables[table_id].primary_key[m]][0] < data) )
-        	return m+1;
-		else
-			return m;
-    }
-    
-	//make those functions only internal
-    function push_key(uint256 table_id, uint256 place, uint256 new_value) {
-        uint256 i;
-		uint256 length = tables[table_id].primary_key.length + 1;
-		tables[table_id].primary_key.length = length; //array extension is manual
-		
-        // push old key forward to make place for new one
-        for (i=length-1; i>place; i--) {
-            tables[table_id].primary_key[i] = tables[table_id].primary_key[i-1];
+        while (L <= R) {
+            m = uint256((L+R)/2);
+            if (DBs[DB_id].data[DBs[DB_id].primary_key[m]][0] < data) {
+                L = int256(m)+1;
+            } else if (DBs[DB_id].data[DBs[DB_id].primary_key[m]][0] > data) {  
+                R = int256(m)-1;
+            } else {
+               return m;
+            }
         }
         
-        tables[table_id].primary_key[place] = new_value;
+        if ( (DBs[DB_id].primary_key.length>0) && (DBs[DB_id].data[DBs[DB_id].primary_key[m]][0] < data) )
+            return m+1;
+        else
+            return m;
     }
     
-	function delete_key(uint256 table_id, uint256 place) {
+    function push_key(uint256 DB_id, uint256 place, uint256 new_value) internal {
         uint256 i;
-		uint256 length = tables[table_id].primary_key.length;
-		
+        uint256 length = DBs[DB_id].primary_key.length + 1;
+        DBs[DB_id].primary_key.length = length; //array extension is manual
+        
+        // push old key forward to make place for new one
+        for (i=length-1; i>place; i--) {
+            DBs[DB_id].primary_key[i] = DBs[DB_id].primary_key[i-1];
+        }
+        
+        DBs[DB_id].primary_key[place] = new_value;
+    }
+    
+    function delete_key(uint256 DB_id, uint256 place) internal {
+        uint256 i;
+        uint256 length = DBs[DB_id].primary_key.length;
+        
         // push old key forward to make place for new one
         for (i=place; i<length-1; i++) {
-            tables[table_id].primary_key[i] = tables[table_id].primary_key[i+1];
+            DBs[DB_id].primary_key[i] = DBs[DB_id].primary_key[i+1];
         }
-		
-		delete tables[table_id].primary_key[length-1];
-		tables[table_id].primary_key.length = length - 1; //NEEDED?
+        
+        delete DBs[DB_id].primary_key[length-1];
+        DBs[DB_id].primary_key.length = length - 1; //NEEDED?
     }
-	
+    
     // Delete BCDB in case of migrating to another contract (may be removed in production version)
     function delete_BCDB() onlyGod {
-		uint i;
+        uint i;
 
-		for (i=0; i<tables.length; i++) {
-			delete tables[i];
-		}
+        for (i=0; i<DBs.length; i++) {
+            delete DBs[i];
+        }
     }
-	
-	/*                      *
-     * Output functions	    *
-     *                      */  
-	function get_header(uint256 table_id, uint256 header_id) constant returns (bytes32[]) {
-		if (header_id < tables[table_id].header.length) {
-			return tables[table_id].header;
-		} //TAKE CARE OF THE ELSES
-	}
-	
-	function get_keys(uint256 table_id, uint256 key_id) constant returns (uint256) {
-		if (table_id < tables.length && key_id < tables[table_id].primary_key.length) {
-			return tables[table_id].primary_key[key_id];
-		} else { 
-			return 1000;
-		}
-	}
-	
-	function get_data(uint256 table_id, uint256 row) constant returns (bytes32[]) {
-		if (row < tables[table_id].data.length) {
-			return (tables[table_id].data[row]);
-		}
-	}
-	
-	function get_table_size(uint256 table_id) constant returns (uint256) {
-		if (table_id < tables.length) {
-			return tables[table_id].data.length;
-		}
-	}
-    
     
 }
