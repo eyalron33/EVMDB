@@ -1,6 +1,6 @@
 // TODO: Example with getting DB id from event
 
-/* A simple Ethereum Virtual Machine Database (EVMDB)
+/* A simple Ethereum Virtual Machine Database (EVMDB).
 //
 // Used for creating/managing DBs on the EVM.
 //
