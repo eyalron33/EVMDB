@@ -51,6 +51,7 @@ label {
 
 input[type="text"],
 textarea,
+select,
 button {
 	font: 400 12px/16px "Roboto", Helvetica, Arial, sans-serif;
 }
@@ -78,7 +79,8 @@ fieldset {
 }
 
 input[type="text"],
-textarea {
+textarea,
+select {
 	//width: 100%;
 	border: 1px solid #ccc;
 	background: #FFF;
@@ -86,8 +88,14 @@ textarea {
 	padding: 5px;
 }
 
+select,
+option {
+	height: 2em;
+}
+
 input[type="text"]:hover,
-textarea:hover {
+textarea:hover,
+select:hover {
 	-webkit-transition: border-color 0.3s ease-in-out;
 	-moz-transition: border-color 0.3s ease-in-out;
 	transition: border-color 0.3s ease-in-out;
@@ -126,7 +134,8 @@ button:active {
 }
 
 input:focus,
-textarea:focus {
+textarea:focus,
+select:focus {
 	outline: 0;
 	border: 1px solid #aaa;
 }

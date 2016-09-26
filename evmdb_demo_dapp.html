@@ -139,7 +139,20 @@
 <body>
 <h1> EVMDB Demo </h1>
 	<div class="container_wide">
-	<div class="container">
+		<div class="container">
+			<h3>Network Chain</h3>
+			<fieldset>
+				<select name="network_chain"  onChange="alert('Craig is the best!!!');">
+					<option value="mainnet">ETH mainnet</option>
+					<option value="testnet">ETH testnet</option>
+					<option value="classic">ETC mainnet</option>
+				</select>
+			</fieldset>
+		</div>
+	</div>
+		
+	<div class="container_wide">
+		<div class="container">
 			<h3>Create DB</h3>
 			<fieldset>
 				<input type='text' id='create_DB' placeholder="DB Name" maxlength="8" size="8" tabindex="1">
@@ -151,9 +164,9 @@
 			<fieldset>
 				<button onclick='create()'>Create</button> <div id="created_DB_id"> A DB with ID x was created </div>
 			</fieldset>
-	</div>
+		</div>
 
-	<div class="container">
+		<div class="container">
 			<h4>Insert</h4>
 			<fieldset>
 				<label>DB ID:</label>
@@ -166,8 +179,9 @@
 			<fieldset>
 				<button onclick='insert()'>Insert</button>
 			</fieldset>
-	</div>
-	<div class="container">
+		</div>
+		
+		<div class="container">
 			<h4>Update</h4>
 			<fieldset>
 				<label>DB ID:</label>
@@ -182,8 +196,9 @@
 			<fieldset>
 				<button onclick='update()'>Update</button>
 			</fieldset>
-	</div>
-	<div class="container">
+		</div>
+	
+		<div class="container">
 			<h4>Search</h4>
 			<fieldset>
 				<label>DB ID:</label>
@@ -196,8 +211,9 @@
 			<fieldset>
 				<div id='search_res'>result here</div>
 			</fieldset>
-	</div>
-	<div class="container">
+		</div>
+	
+		<div class="container">
 			<h4>Erase</h4>
 			<fieldset>
 				<label>DB ID:</label>
@@ -208,36 +224,37 @@
 			<fieldset>
 				<button onclick='erase()'>Erase</button>
 			</fieldset>
-	</div>
+		</div>
 	</div>
 
 	<div class="container_wide">
-	<div class="container">
+		<div class="container">
 			<h3>DBs List</h3>
 			<fieldset>
 				<textarea id='DBs_list' rows="10" cols="20" disabled></textarea>
 			</fieldset>
-	</div>
-	<div class="container">
+		</div>
+	
+		<div class="container">
 			<h3>DB View</h3>
 			<fieldset>
 				<label>DB ID:</label>
 				<input type='text' id='show_DB_id' value="0" maxlength="4" size="4">
 				<button onclick='show_DB()'>Show DB</button>
 			</fieldset>
-	</div>
-	<div id='table'>output
-		<table>
-			<tr>
-				<th>Header 1</th>
-				<th>Header 2</th>
-			</tr>
-			<tr>
-				<td>Data 1</td>
-				<td>Data 2</td>
-			</tr>
-		</table>
-	</div>
+		</div>
+		<div id='table'>output
+			<table>
+				<tr>
+					<th>Header 1</th>
+					<th>Header 2</th>
+				</tr>
+				<tr>
+					<td>Data 1</td>
+					<td>Data 2</td>
+				</tr>
+			</table>
+		</div>
 	</div>
 
 </body>
