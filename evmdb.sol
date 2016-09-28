@@ -1,5 +1,3 @@
-// TODO: Example with getting DB id from event
-
 /* A simple Ethereum Virtual Machine Database (EVMDB).
 //
 // Used for creating/managing DBs on the EVM.
@@ -52,23 +50,25 @@ contract EVMDB {
     ///
     /// @return            id of newly created DB
     function create(bytes32 _name, bytes32[] _headers) external returns (uint256) {
-        uint256 DB_id = DBs.length;
-        uint256 i;
+        if (_name != "") {
+            uint256 DB_id = DBs.length;
+            uint256 i;
         
-        //array extension is manual
-        DBs.length = DB_id + 1;
-        DBs[DB_id].header.length = _headers.length;
+            //array extension is manual
+            DBs.length = DB_id + 1;
+            DBs[DB_id].header.length = _headers.length;
         
         
-        for (i=0; i<_headers.length; i++) {
-            DBs[DB_id].header[i] = _headers[i]; 
+            for (i=0; i<_headers.length; i++) {
+                DBs[DB_id].header[i] = _headers[i]; 
+            }
+        
+            DBs[DB_id].name = _name;
+            DBs[DB_id].owner = msg.sender;
+        
+            DBCreated(_name, DB_id);
+            return DB_id;
         }
-        
-        DBs[DB_id].name = _name;
-        DBs[DB_id].owner = msg.sender;
-        
-        DBCreated(_name, DB_id);
-        return DB_id;
     }
     
     /// inserts data to a new row in the DB
@@ -100,7 +100,6 @@ contract EVMDB {
             return row_id;
         } else {
             log1(bytes32(_DB_id),"invalid parameters");
-            throw;
         }
     }
     
@@ -112,20 +111,30 @@ contract EVMDB {
         if (_DB_id < DBs.length && 
             msg.sender == DBs[_DB_id].owner && 
             _row < DBs[_DB_id].data.length) {
-                
-            //delete key
-            int256 place = binary_search(_DB_id, DBs[_DB_id].data[_row][0]);
-            delete_key(_DB_id, uint256(place));
             
-            //delete from DB
             uint256 i;
+            bool already_deleted = true;
+            
             for (i=0; i<DBs[_DB_id].data[_row].length; i++) {
-                delete DBs[_DB_id].data[_row][i];
+                if (DBs[_DB_id].data[_row][i] != 0) {
+                    already_deleted = false;   
+                }
             }
             
+            if (!already_deleted) {    
+                //delete key
+                int256 place = binary_search(_DB_id, DBs[_DB_id].data[_row][0]);
+                delete_key(_DB_id, uint256(place));
+            
+                //delete from DB
+                for (i=0; i<DBs[_DB_id].data[_row].length; i++) {
+                    delete DBs[_DB_id].data[_row][i];
+                }
+            } else {
+                log1(bytes32(_DB_id),"row already deleted");
+            }        
         } else {
             log1(bytes32(_DB_id),"invalid parameters");
-            throw;
         }
     }
     
@@ -156,7 +165,6 @@ contract EVMDB {
             push_key(_DB_id, uint256(place), _row);
         } else {
             log1(bytes32(_DB_id),"invalid parameters");
-            throw;
         }
     }
     
@@ -173,8 +181,7 @@ contract EVMDB {
                 return place;
             }
         } else {
-            log1(bytes32(_DB_id),"table_id does not exist");
-            throw;
+                return -1;
         }
     }
     
@@ -327,7 +334,7 @@ contract EVMDB {
         }
         
         delete DBs[DB_id].primary_key[length-1];
-        DBs[DB_id].primary_key.length = length - 1; //NEEDED?
+        DBs[DB_id].primary_key.length = length - 1;
     }
     
     // Delete BCDB in case of migrating to another contract (may be removed in production version)

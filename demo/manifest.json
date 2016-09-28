@@ -1,0 +1,20 @@
+
+{
+	"entries" : 
+	[
+		
+		{
+			"contentType" : "application/javascript",
+			"file" : "deployment.js",
+			"hash" : "4397e9c8053b9f188d21bf210263ad79dab0d7f8119a79b3f1ff8050f0650e4e",
+			"path" : "/deployment.js"
+		},
+		
+		{
+			"contentType" : "text/html",
+			"file" : "index.html",
+			"hash" : "11265cdda882b24fb29223bab95bfe491cebddbc761b5b3f230dff61ffd7d1b1",
+			"path" : "/"
+		}
+	]
+}
