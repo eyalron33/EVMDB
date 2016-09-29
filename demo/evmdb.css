@@ -50,9 +50,20 @@ label {
 }
 
 input[type="text"],
+input[type="number"],
 textarea,
 button {
 	font: 400 12px/16px "Roboto", Helvetica, Arial, sans-serif;
+}
+p {
+	color: #000;
+}
+
+h1 {
+	display: block;
+	font-size: 24px;
+	font-weight: 500;
+	margin: 5px;
 }
 
 h3 {
@@ -78,6 +89,7 @@ fieldset {
 }
 
 input[type="text"],
+input[type="number"],
 textarea {
 	//width: 100%;
 	border: 1px solid #ccc;
@@ -87,6 +99,7 @@ textarea {
 }
 
 input[type="text"]:hover,
+input[type="number"]:hover,
 textarea:hover {
 	-webkit-transition: border-color 0.3s ease-in-out;
 	-moz-transition: border-color 0.3s ease-in-out;
