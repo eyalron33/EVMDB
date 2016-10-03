@@ -35,6 +35,9 @@ contract EVMDB {
     
     /* Events and Modifiers */
     event DBCreated(bytes32 name, uint256 index);
+    event RowInserted(uint256 db, uint256 row);
+    event RowUpdated(uint256 db, uint256 row);
+    event RowErased(uint256 db, uint256 row);
     modifier onlyGod { if (msg.sender != god) throw; _ ;}
     
     
@@ -97,7 +100,40 @@ contract EVMDB {
             uint256 place = place_to_push(_DB_id, _data[0]);
             push_key(_DB_id, place, row_id);
             
+            RowInserted(_DB_id, row_id);
             return row_id;
+        } else {
+            log1(bytes32(_DB_id),"invalid parameters");
+        }
+    }
+    
+    /// updates a row in a DB
+    ///
+    /// @param _DB_id   id of the DB
+    /// @param _row     number of row to update
+    /// @param _data    new data
+    function update(uint256 _DB_id, uint256 _row, bytes32[] _data) external { //TODO: row_id --> row everywhere
+        if (_DB_id < DBs.length && 
+            msg.sender == DBs[_DB_id].owner && 
+            _row < DBs[_DB_id].data.length &&
+            _data.length == DBs[_DB_id].header.length) {
+
+            uint256 i;
+
+            //delete key
+            int256 place = binary_search(_DB_id, DBs[_DB_id].data[_row][0]);
+            delete_key(_DB_id, uint256(place));
+            
+            //update value
+            for (i=0; i<_data.length; i++) {    
+                DBs[_DB_id].data[_row][i] = _data[i];
+            }
+            
+            //update key
+            place = int256(place_to_push(_DB_id, _data[0]));
+            push_key(_DB_id, uint256(place), _row);
+            
+            RowUpdated(_DB_id, _row);
         } else {
             log1(bytes32(_DB_id),"invalid parameters");
         }
@@ -130,39 +166,10 @@ contract EVMDB {
                 for (i=0; i<DBs[_DB_id].data[_row].length; i++) {
                     delete DBs[_DB_id].data[_row][i];
                 }
+                RowErased(_DB_id, _row);
             } else {
                 log1(bytes32(_DB_id),"row already deleted");
             }        
-        } else {
-            log1(bytes32(_DB_id),"invalid parameters");
-        }
-    }
-    
-    /// updates a row in a DB
-    ///
-    /// @param _DB_id   id of the DB
-    /// @param _row     number of row to update
-    /// @param _data    new data
-    function update(uint256 _DB_id, uint256 _row, bytes32[] _data) external { //TODO: row_id --> row everywhere
-        if (_DB_id < DBs.length && 
-            msg.sender == DBs[_DB_id].owner && 
-            _row < DBs[_DB_id].data.length &&
-            _data.length == DBs[_DB_id].header.length) {
-
-            uint256 i;
-
-            //delete key
-            int256 place = binary_search(_DB_id, DBs[_DB_id].data[_row][0]);
-            delete_key(_DB_id, uint256(place));
-            
-            //update value
-            for (i=0; i<_data.length; i++) {    
-                DBs[_DB_id].data[_row][i] = _data[i];
-            }
-            
-            //update key
-            place = int256(place_to_push(_DB_id, _data[0]));
-            push_key(_DB_id, uint256(place), _row);
         } else {
             log1(bytes32(_DB_id),"invalid parameters");
         }

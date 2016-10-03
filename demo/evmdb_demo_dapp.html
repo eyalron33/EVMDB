@@ -131,14 +131,52 @@
 			document.getElementById('table').innerHTML = table_html;
 		}
 
+		// -=- Events -=- //
+		var createEvent = contracts['EVMDB'].contract.DBCreated(function(error, result) {
+    if (!error) {
+    	show_DBs_list();
+    		blink_text("create_event_div", "DB created");
+		} else {
+			blink_text("create_event_div", "Error in DB creation");
+		}});
+
+		var insertEvent = contracts['EVMDB'].contract.RowInserted(function(error, result) {
+    if (!error) {
+    		blink_text("insert_event_div", "Data inserted");
+		} else {
+			blink_text("insert_event_div", "Error in inserting data");
+		}});
+
+		var updateEvent = contracts['EVMDB'].contract.RowUpdated(function(error, result) {
+    if (!error) {
+    		blink_text("update_event_div", "Data updated");
+		} else {
+			blink_text("update_event_div", "Error in updating data");
+		}});
+
+		var eraseEvent = contracts['EVMDB'].contract.RowErased(function(error, result) {
+    if (!error) {
+    		blink_text("erase_event_div", "Data deleted");
+		} else {
+			blink_text("erase_event_div", "Error in deleting data");
+		}});
+
+
+		// -=- Auxiliary functions -=- //
 		function isNatural(n) {
    		return ( !isNaN(n) && (n % 1 === 0) && (n >= 0) );
+		}
+
+		function blink_text(div_id, text) {
+			document.getElementById(div_id).innerText = text;
+   		setTimeout(function(){ document.getElementById(div_id).innerText = " "; }, 2000);
 		}
 
 	</script>
 </head>
 
 <body>
+
 	<div class="container_wide">
 		<h1> EVMDB Demo </h1>
 		<div class="container">
@@ -165,7 +203,7 @@
 				<input type='text' id='create_header2' placeholder="Header2" size="10" tabindex="3">
 			</fieldset>
 			<fieldset>
-				<button onclick='create()'>Create</button> <div id="created_DB_id"> A DB with ID x was created </div>
+				<button onclick='create()'>Create</button> <div id="create_event_div"> </div>
 			</fieldset>
 		</div>
 
@@ -180,7 +218,7 @@
 				<input type='text' id='insert_field2' placeholder="Field 2" size="10">
 			</fieldset>
 			<fieldset>
-				<button onclick='insert()'>Insert</button>
+				<button onclick='insert()'>Insert</button> <div id="insert_event_div"> </div>
 			</fieldset>
 		</div>
 		
@@ -197,7 +235,7 @@
 				<input type='text' id='update_field2' placeholder="field 2" size="10">
 			</fieldset>
 			<fieldset>
-				<button onclick='update()'>Update</button>
+				<button onclick='update()'>Update</button> <div id="update_event_div"> </div>
 			</fieldset>
 		</div>
 	
@@ -210,7 +248,7 @@
 				<input type='number' min="0" id='erase_row' value="0" maxlength="4" size="4">
 			</fieldset>
 			<fieldset>
-				<button onclick='erase()'>Erase</button>
+				<button onclick='erase()'>Erase</button> <div id="erase_event_div"> </div>
 			</fieldset>
 		</div>
 
@@ -263,6 +301,7 @@
 		</div>
 	</div>
 
+<script> show_DBs_list(); </script>
 </body>
 
 </html>
