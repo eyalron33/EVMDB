@@ -55,6 +55,11 @@ textarea,
 button {
 	font: 400 12px/16px "Roboto", Helvetica, Arial, sans-serif;
 }
+
+input[type="number"] {
+    width: 5em;
+}
+
 p {
 	color: #000;
 }
@@ -91,7 +96,6 @@ fieldset {
 input[type="text"],
 input[type="number"],
 textarea {
-	//width: 100%;
 	border: 1px solid #ccc;
 	background: #FFF;
 	margin: 0 0 2px;
