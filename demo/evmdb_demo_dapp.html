@@ -92,6 +92,7 @@
 			var i, j;
 			var DB_name;
 			var table_html = "<table> ";
+			table_html = table_html + "<tr><th>Index</th><th>Name</th></tr>";
 			for (i = 0; i < DBs_num; i++) {
 				var DB_name = contracts['EVMDB'].contract.get_DB_info(i);
 				DB_name = DB_name[1];
@@ -116,7 +117,7 @@
 			var row;
 			var table_html = "<table>";
 
-			table_html = table_html + "<tr><td><b>" + web3.toAscii(headers[0]) + "</b></td><td><b>" + web3.toAscii(headers[1]) + "</b></td></tr>"
+			table_html = table_html + "<tr><th>" + web3.toAscii(headers[0]) + "</th><th>" + web3.toAscii(headers[1]) + "</th></tr>"
 			for (i = 0; i < DB_size; i++) {
 				row = contracts['EVMDB'].contract.get_row(DB_id, i);
 				if ( (row[0] != 0) || (row[1] != 0) ) { //deleted row are all zeros
