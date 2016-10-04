@@ -117,7 +117,7 @@
 			var row;
 			var table_html = "<table>";
 
-			table_html = table_html + "<tr><th>" + web3.toAscii(headers[0]) + "</th><th>" + web3.toAscii(headers[1]) + "</th></tr>"
+			table_html = table_html + "<tr><th>Index</th><th>" + web3.toAscii(headers[0]) + "</th><th>" + web3.toAscii(headers[1]) + "</th></tr>"
 			for (i = 0; i < DB_size; i++) {
 				row = contracts['EVMDB'].contract.get_row(DB_id, i);
 				if ( (row[0] != 0) || (row[1] != 0) ) { //deleted row are all zeros
