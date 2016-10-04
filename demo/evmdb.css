@@ -163,7 +163,7 @@ textarea:focus {
 table {
     display: table;
     border-collapse: separate;
-    border-spacing: 5px;
+    border-spacing: 0px;
     border-color: gray;
 }
 th {
@@ -171,10 +171,17 @@ th {
 	font-weight: 400;
 	font-size: 18px;
 	color: #333;
+	border-bottom: 1px solid #ddd;
+	padding: 2px 8px;
 }
 td {
 	font-family: "Roboto", Helvetica, Arial, sans-serif;
 	font-weight: 100;
 	font-size: 16px;
 	color: #333;
+	margin: 0px;
+	padding: 0px 8px;
+}
+tr:nth-child(even) {
+    background-color: #fff;
 }
