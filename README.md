@@ -42,7 +42,7 @@ A [demo Dapp](link) to manage databases was deployed to the ETH mainnet and test
 You can also run the [demo Dapp](link) locally using testrpc. To do so, follow those steps:
 1. Clone this repository.
 
-2. Install and run [testrpc)[https://github.com/ethereumjs/testrpc], you should see something like that:
+2. Install and run [testrpc](https://github.com/ethereumjs/testrpc), you should see something like that:
 ![Testrpc_run1](https://c2.staticflickr.com/6/5284/30128813205_b61a6d85b0_o.jpg)
 
 3. run 'deploy_contract.html' located in /demo/deployent/ folder, you should be something like this:
