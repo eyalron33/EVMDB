@@ -22,8 +22,8 @@ contract EVMDB {
         address     owner;
         bytes32     name;
         bytes32[]   header;
-        bytes32[][] data; // Dynamic array whose elements are arrays of two bytes
-        uint256[]   primary_key; // Assume 'primary key' is the first column
+        bytes32[][] data; 
+        uint256[]   primary_key; // Assume 'primary key' is the first column in 'data'
     }
     
     DB[] DBs;
@@ -120,9 +120,19 @@ contract EVMDB {
 
             uint256 i;
 
+            bool already_deleted = true;
+            
+            for (i=0; i<DBs[_DB_id].data[_row].length; i++) {
+                if (DBs[_DB_id].data[_row][i] != 0) {
+                    already_deleted = false;   
+                }
+            }
+
             //delete key
-            int256 place = binary_search(_DB_id, DBs[_DB_id].data[_row][0]);
-            delete_key(_DB_id, uint256(place));
+            if (!already_deleted) {
+                int256 place = binary_search(_DB_id, DBs[_DB_id].data[_row][0]);
+                delete_key(_DB_id, uint256(place));
+            }
             
             //update value
             for (i=0; i<_data.length; i++) {    
@@ -335,22 +345,12 @@ contract EVMDB {
         uint256 i;
         uint256 length = DBs[DB_id].primary_key.length;
         
-        // push old key forward to make place for new one
         for (i=place; i<length-1; i++) {
             DBs[DB_id].primary_key[i] = DBs[DB_id].primary_key[i+1];
         }
         
         delete DBs[DB_id].primary_key[length-1];
         DBs[DB_id].primary_key.length = length - 1;
-    }
-    
-    // Delete BCDB in case of migrating to another contract (may be removed in production version)
-    function delete_BCDB() onlyGod {
-        uint i;
-
-        for (i=0; i<DBs.length; i++) {
-            delete DBs[i];
-        }
     }
     
 }
