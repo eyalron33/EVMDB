@@ -3,7 +3,7 @@
 ## Description
 A simple Ethereum Virtual Machine Database (EVMDB).
 
-It is used for creating and managing DBs on the EVM.
+EVMDB is used for creating and managing DBs on the EVM.
 
 The functionality provided is simple:
 - create a DB.
