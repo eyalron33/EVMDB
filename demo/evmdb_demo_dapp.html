@@ -17,7 +17,7 @@
 		web3.eth.defaultAccount = web3.eth.coinbase;
 	</script>
 
-	<script src="deployment.js"></script>
+	<script src="deployment/deployment_morden.js"></script>
 	<script type='text/javascript'>
 		function create() {
 			var name = document.getElementById('create_DB').value;
@@ -162,6 +162,10 @@
 			blink_text("erase_event_div", "Error in deleting data");
 		}});
 
+		function change_blockchain() {
+			
+		}
+
 
 		// -=- Auxiliary functions -=- //
 		function isNatural(n) {
@@ -183,10 +187,10 @@
 		<div class="container">
 			<h3>Network Chain</h3>
 			<fieldset>
-				<select name="network_chain"  onChange="alert('Changed chain');">
-					<option value="mainnet">ETH mainnet</option>
-					<option value="testnet">ETH testnet</option>
-					<option value="classic">ETC mainnet</option>
+				<select id="network_chain"  onChange="change_blockchain();">
+					<option value="mainnet">ETH</option>
+					<option value="morden">ETH Morden (testnet)</option>
+					<option value="testrpc">Testrpc (follow github insturctions to set up)</option>
 				</select>
 			</fieldset>
 		</div>
