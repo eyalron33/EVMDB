@@ -3,7 +3,7 @@
 ## Description
 A simple Ethereum Virtual Machine Database (EVMDB).
 
-It is used for creating and managing DBs on the EVM.
+EVMDB is used for creating and managing DBs on the EVM.
 
 The functionality provided is simple:
 - create a DB.
@@ -34,9 +34,25 @@ DB read API:
 - get_number_of_DBs(). a constatnt function. Returns the number of DBs in the smart contract.
 
 ## Examples
-A (demo Dapp)[link] using EVMDB was deployed to the ETH mainnet, testnet and ETC mainnet.
-
 A demo smart contract using EVMDB is supplied in the examples folder in this repository (examples/EVMDB_SC_example.sol). 
+
+
+A [demo Dapp](link) to manage databases was deployed to the ETH mainnet and testnet. If you run any of those two nodes, simply select the relevant one from the drop down list.
+
+You can also run the [demo Dapp](link) locally using testrpc. To do so, follow those steps:
+1. Clone this repository.
+
+2. Install and run [testrpc](https://github.com/ethereumjs/testrpc), you should see something like that:
+![Testrpc_run1](https://c2.staticflickr.com/6/5284/30128813205_b61a6d85b0_o.jpg)
+
+3. run 'deploy_contract.html' located in /demo/deployent/ folder, you should be something like this:
+![Testrpc_run2](https://c2.staticflickr.com/8/7504/30093902056_f35abf54fd_o.jpg)
+
+4. Copy the contract number ("0x8a1dfd7888b9ec7709ce6ff468edb4f6100955a1" in the picture above) and paste it as the value of 'deployed_contract' in /demo/deployment/deployment_testrpc.js
+
+5. run evmdb_demo_dapp.html, and select 'tesrpc' from the dropbox in the upper left corner.
+
+
 
 
 
