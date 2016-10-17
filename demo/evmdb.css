@@ -62,6 +62,8 @@ input[type="number"] {
 
 p {
 	color: #000;
+	line-height: 1.25em;
+	margin-right: 2em;
 }
 
 h1 {
@@ -189,3 +191,4 @@ td {
 tr:nth-child(even) {
     background-color: #fff;
 }
+
