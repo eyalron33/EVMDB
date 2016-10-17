@@ -25,8 +25,8 @@
 			var name = document.getElementById('create_DB').value;
 			var header1 = document.getElementById('create_header1').value;
 			var header2 = document.getElementById('create_header2').value;
-			if ( (name == "") || (header1 == "") || (header2 == "") ) {
-				alert('DB name and headers must be non-empty');
+			if ( (name == "") || (header1 == "") || (header2 == "") || isInvalidData(name) || isInvalidData(header1) || isInvalidData(header2)  ) {
+				alert('DB name and headers must be nonempty alphanumeric and not a number');
 				return;
 			}
 
@@ -37,8 +37,8 @@
 			var name = document.getElementById('insert_DB').value;
 			var field1 = document.getElementById('insert_field1').value;
 			var field2 = document.getElementById('insert_field2').value;
-			if ( !isNatural(name) || (field1 == "") || (field2 == "") ) {
-				alert('DB id must be a positive number and fields must be non-empty');
+			if ( !isNatural(name) || (field1 == "") || (field2 == "") || isInvalidData(field1) || isInvalidData(field2) ) {
+				alert('DB id must be a positive number, fields must be nonempty alphanumeric and not a number');
 				return;
 			}
 
@@ -50,8 +50,8 @@
 			var row = document.getElementById('update_row').value;
 			var field1 = document.getElementById('update_field1').value;
 			var field2 = document.getElementById('update_field2').value;
-			if ( !isNatural(name) || !isNatural(row) || (field1 == "") || (field2 == "") ) {
-				alert('DB and row ids must be non-negative numbers and fields must be non-empty');
+			if ( !isNatural(name) || !isNatural(row) || (field1 == "") || (field2 == "") || isInvalidData(field1) || isInvalidData(field2) ) {
+				alert('DB and row ids must be nonnegative numbers and fields must be nonempty alphanumeric and not a number');
 				return;
 			}
 
@@ -73,7 +73,7 @@
 			var name = document.getElementById('search_DB').value;
 			var value = document.getElementById('search_value').value;
 			if ( !isNatural(name) || (value == "") ) {
-				alert('DB must be a non-negative number and search value non-empty');	
+				alert('DB must be a non-negative number and search value nonempty');	
 				return;
 			}
 
@@ -172,6 +172,16 @@
 		// -=- Auxiliary functions -=- //
 		function isNatural(n) {
    		return ( !isNaN(n) && (n % 1 === 0) && (n >= 0) );
+		}
+
+		// Demo accepts only alphanumeric values which are not numbers (to avoid EVM formatting issues)
+		function isInvalidData(data) {
+			if ( !isNaN(data) ) //no numbers
+				return true;
+			if ( !(/^[a-z0-9\s\-]+$/i.test(data)) ) {
+				return true;
+			}
+			return false;
 		}
 
 		function blink_text(div_id, text) {
