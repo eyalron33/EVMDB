@@ -1,7 +1,7 @@
 # EVMDB
 
 ## Description
-A simple Ethereum Virtual Machine Database (EVMDB). Version 0.0.1. It is a first functional prototype, use with cautious!
+A simple Ethereum Virtual Machine Database (EVMDB). Version 0.0.1. **It is a first functional prototype**, use with cautious!
 
 EVMDB is used for creating and managing DBs on the EVM.
 
@@ -19,12 +19,12 @@ The EVMDB can either be called from DAPPs or from another smart contract.
 
 DB managing API:
 - create(bytes32 _name, bytes32[] _headers): creates a DB called _name with headers _headers. Returns the ID of the newly created DB. It is assumed that _headers[0] is the primary key of the DB. Generates a 'DBCreated' event
-- insert(uint256 _DB_id, bytes32[] _data): inserts row with data _data to _DB_ID. Returns the ID for the newly inserted row.
-- erase(uint256 _DB_id, uint256 _row): erases row with id _row from _DB_id. Recall that in Solidity deletion of a row means exchanging all of its values with '0'.
-- update(uint256 _DB_id, uint256 _row, bytes32[] _data): updates the data in row with id _row in _DB_id to be _data.
+- insert(uint256 _DB_id, bytes32[] _data): inserts a row with data _data to _DB_ID. Returns the ID for the newly inserted row.
+- erase(uint256 _DB_id, uint256 _row): erases a row with id _row from _DB_id. Recall that in Solidity deletion of a row means exchanging all of its values with '0'.
+- update(uint256 _DB_id, uint256 _row, bytes32[] _data): updates the data in the row with id _row in _DB_id to be _data.
 
 DB search API:
-- search(uint256 _DB_id, bytes32 _value): a constant function. Searches the primary key (i.e, the first column) of _DB_id for _value. If found, returns the id of the row that contains the item (if the primary key allows duplications, then some row that fits the search is returned). If not found, returns '-1'.
+- search(uint256 _DB_id, bytes32 _value): a constant function. Searches the primary key (i.e, the first column) of _DB_id for _value. If found, returns the id of the row that contains the item (if the primary key contains duplications, then some row that fits the search is returned). If not found, returns '-1'.
 
 DB read API:
 - get_header(uint256 _DB_id). a constatnt function. Returns a bytes32[] array with the header names of _DB_id.
@@ -34,12 +34,12 @@ DB read API:
 - get_number_of_DBs(). a constatnt function. Returns the number of DBs in the smart contract.
 
 ## Examples
-A demo smart contract using EVMDB is supplied in the examples folder in this repository (examples/EVMDB_SC_example.sol). 
+A demo smart contract using EVMDB is supplied in the [examples folder](https://github.com/eyalron33/EVMDB/tree/master/examples). 
 
 
-A [demo Dapp](link) to manage databases was deployed to the ETH mainnet and testnet. If you run any of those two nodes, simply select the relevant one from the drop down list.
+A [demo Dapp](http://cryptom.site/evmdb/) to manage databases is run on a simulated blockchain on Cryptom's server. The data there is deleted every 24 hours, so use it for impression only!
 
-You can also run the [demo Dapp](link) locally using testrpc. To do so, follow those steps:
+You can also run the demo Dapp locally using testrpc. To do so, follow those steps:
 1. Clone this repository.
 
 2. Install and run [testrpc](https://github.com/ethereumjs/testrpc), you should see something like that:
@@ -48,13 +48,6 @@ You can also run the [demo Dapp](link) locally using testrpc. To do so, follow t
 3. run 'deploy_contract.html' located in /demo/deployent/ folder, you should be something like this:
 ![Testrpc_run2](https://c2.staticflickr.com/8/7504/30093902056_f35abf54fd_o.jpg)
 
-4. Copy the contract number ("0x8a1dfd7888b9ec7709ce6ff468edb4f6100955a1" in the picture above) and paste it as the value of 'deployed_contract' in /demo/deployment/deployment_testrpc.js
+4. Copy the contract number ("0x8a1dfd7888b9ec7709ce6ff468edb4f6100955a1" in the picture above) and paste it as the value of 'deployed_contract' in /demo/deployment/deployment.js
 
-5. run evmdb_demo_dapp.html, and select 'tesrpc' from the dropbox in the upper left corner.
-
-
-
-
-
-
-
+5. run evmdb_demo_dapp.html.
