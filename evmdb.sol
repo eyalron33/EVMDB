@@ -13,7 +13,7 @@
 // License:  MIT 
 */
 
-pragma solidity ^0.4.2;
+pragma solidity ^0.4.4;
 
 contract EVMDB {
     int256 constant NOT_FOUND   = -1;

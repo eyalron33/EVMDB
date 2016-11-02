@@ -1,7 +1,6 @@
-/* An example smart contract that uses BCDB
+/* An example smart contract that uses BCDB */
 
-Description: TBD
-*/
+pragma solidity ^0.4.4;
 
 contract use_BCDB {
 	BCDB database;

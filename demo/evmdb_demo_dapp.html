@@ -11,15 +11,16 @@
 	<script>
 		var Web3 = require('web3');
 		var web3 = new Web3();
-		web3 = new Web3(new Web3.providers.HttpProvider("http://craigsailor.com:8545"));		
-		//web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+		web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
 
 		// let's assume that coinbase is our account
 		web3.eth.defaultAccount = web3.eth.coinbase;
 	</script>
 
-	<script //src="deployment/deployment_morden.js"></script>
-	<script src="deployment/deployment_cryptom_testrpc.js"></script>
+	<script src="deployment.js"> 
+		// NOTE: change contract adress in deployment.js according to current network (mainnet, testnet, private etc.) 
+	</script> 
+	
 	<script type='text/javascript'>
 		function create() {
 			var name = document.getElementById('create_DB').value;
