@@ -1,7 +1,7 @@
 # EVMDB
 
 ## Description
-A simple Ethereum Virtual Machine Database (EVMDB).
+A simple Ethereum Virtual Machine Database (EVMDB). Version 0.0.1. It is a first functional prototype, use with cautious!
 
 EVMDB is used for creating and managing DBs on the EVM.
 

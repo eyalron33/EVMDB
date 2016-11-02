@@ -179,7 +179,8 @@
 		function isInvalidData(data) {
 			if ( !isNaN(data) ) //no numbers
 				return true;
-			if ( !(/^[a-z0-9\s\-]+$/i.test(data)) ) {
+			//if ( !(/^[a-z0-9\s\-]+$/i.test(data)) ) {
+			if ( !(/^\w+$/i.test(data)) ) {
 				return true;
 			}
 			return false;
