@@ -37,7 +37,7 @@ DB read API:
 A demo smart contract using EVMDB is supplied in the [examples folder](https://github.com/eyalron33/EVMDB/tree/master/examples). 
 
 
-A [demo Dapp](http://cryptom.site/evmdb/) to manage databases is run on a simulated blockchain on Cryptom's server. The data there is deleted every 24 hours, so use it for impression only!
+A [demo Dapp](http://cryptom.site/evmdb/) to manage databases is run on a simulated blockchain on Cryptom's server. The data there is deleted daily, so use it for impression only!
 
 You can also run the demo Dapp locally using testrpc. To do so, follow those steps:
 1. Clone this repository.
