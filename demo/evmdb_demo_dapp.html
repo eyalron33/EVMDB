@@ -165,10 +165,6 @@
 			blink_text("erase_event_div", "Error in deleting data");
 		}});
 
-		function change_blockchain() {
-			
-		}
-
 
 		// -=- Auxiliary functions -=- //
 		function isNatural(n) {
@@ -201,9 +197,7 @@
 		<div class="container">
 			<h3>Network Chain</h3>
 			<fieldset>
-				<select id="network_chain"  onChange="change_blockchain();">
-					<option value="mainnet">ETH</option>
-					<option value="morden">ETH Testnet</option>
+				<select id="network_chain"">
 					<option value="testrpc" selected>Cryptom's Testrpc</option>
 				</select>
 			</fieldset>
